@@ -1,19 +1,15 @@
 import pytest
 from api_client import BurgerApiClient
-from data import generate_user_payload
+from helpers import UserHelper
 
 @pytest.fixture
-def user_data():
-    return generate_user_payload()
-
-@pytest.fixture
-def created_user(user_data):
-    # Создаем через клиент
-    response = BurgerApiClient.register_user(user_data)
+def created_user():
+    payload = UserHelper.generate_user_payload()
+    response = BurgerApiClient.register_user(payload)
     token = response.json().get("accessToken")
     
-    yield response, user_data
+    user_data = {"response": response, "payload": payload, "token": token}
+    yield user_data
     
-    # Удаляем через клиент после теста
     if token:
         BurgerApiClient.delete_user(token)
